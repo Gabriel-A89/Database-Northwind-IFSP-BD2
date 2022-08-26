@@ -1,16 +1,16 @@
-# Query 1: Lista de produtos disponíveis para compra (não descontinuados).
+# Query 1: Lista de produtos disponíveis para compra (não descontinuados,ou seja, produtos disponíveis para venda).
 SELECT ProductID,
        ProductName 
 FROM Products 
 WHERE Discontinued=0;
 
-# Query 2: Produtos Acima do Preço.
+# Query 2: Produtos mais caros, acima da média de preços
 SELECT Products.ProductName, 
        Products.UnitPrice
 FROM Products
 WHERE Products.UnitPrice>(SELECT AVG(UnitPrice) From Products);
 
-# Query 3: Produtos por Categoria.
+# Query 3: Produtos por Categoria 
 SELECT Categories.CategoryName, 
        Products.ProductName, 
        Products.QuantityPerUnit, 
@@ -23,7 +23,7 @@ WHERE Products.Discontinued <> 1;
 # Query 4: Alteração do nome `Order Details` para `OrderDetails`.
 ALTER TABLE `Order Details` RENAME OrderDetails;
 
-# Query 5: Vendedores que mais Venderam.
+# Query 5: Vendedores que mais Venderam, usando a formula da soma da multiplicação da venda de cada vendedor
 SELECT CONCAT(e.FirstName, ' ', e.LastName) as `Vendedor`,
 	   SUM(od.UnitPrice * od.Quantity) `Total Vendido`
 FROM Employees e
@@ -79,7 +79,7 @@ FROM Employees e
 GROUP BY `Vendedor`
 ORDER BY `Quantidade de Vendas` DESC;
 
-# Query 12: Vendedores com Maior Tempo de Empresa (aproximado).
+# Query 12: Vendedores com Maior Tempo de Empresa supondo que trabalham até hoje nesta empresa(aproximado).
 SELECT CONCAT(e.FirstName, ' ', e.LastName) as `Vendedor`,
 	   DATEDIFF(now(), e.HireDate)/365 as `Tempo de Empresa (anos)`
 FROM Employees e
@@ -89,32 +89,35 @@ ORDER BY `Tempo de Empresa (anos)` DESC;
 SELECT  et.EmployeeID, et.TerritoryID FROM employeeterritories et; 
 
 
-# Query 14: Mêses com mais voos.
+# Query 14: Meses em que houveram mais entregas 
 SELECT 
     EXTRACT(MONTH FROM o.ShippedDate) as `Mês`,
     MONTHNAME(o.ShippedDate) `Nome do Mês`,
-    COUNT(o.OrderID) `Quantidade de Voos`
+    COUNT(o.OrderID) `Quantidade de Entregas`
 FROM Orders o
 WHERE o.ShippedDate IS NOT NULL
 GROUP BY `Mês`, `Nome do Mês`
-ORDER BY `Quantidade de Voos` DESC;
+ORDER BY `Quantidade de Entregas` DESC;
 
 # Query 15: Cada produto e seu nome
-SELECT DISTINCT p.ProductID, p.ProductName FROM Products p ORDER BY ProductID;
+SELECT DISTINCT 
+	p.ProductID, p.ProductName 
+FROM Products p 
+ORDER BY ProductID;
 
-# Query 16: Cada produto seu preço e nome
+# Query 16: Local dos Pedidos, retornando o nome da região e o endereço que foi entregue
 SELECT ShipName, ShipAddress from Orders 
 UNION
 SELECT DISTINCT ShipName, ShipAddress from Orders;
 
-# Query 17: Maiores Salários dos Funcionários 
+# Query 17: Maiores Salários das Funcionárias mulheres e que atuam em London
 
 SELECT e.EmployeeID,e.FirstName,e.Salary FROM Employees e WHERE TitleOfCourtesy = 'Mrs.'
 UNION 
 SELECT e.EmployeeID,e.FirstName,e.Salary FROM Employees e WHERE City = 'London' ORDER BY salary DESC;
 
 
-# Query 18: . Funcionarios que mais vendem os pedidiso por regiao
+# Query 18: . Funcionarios que mais vendem por país
 SELECT cu.Country as `País`,
 	   COUNT(cu.CustomerID) as `Quantidade de Clientes`
 FROM Customers cu
@@ -135,7 +138,7 @@ FROM Employees e
 GROUP BY `Vendedor`
 ORDER BY `Quantidade de Clientes para quem Vendeu` DESC;
 
-# Query 20: Verifica se existem vendas sem data de voo (envio).
+# Query 20: Verifica se existem vendas sem data de entrega
 SELECT IF(
 	EXISTS(
 		SELECT 
